@@ -1,0 +1,274 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$uVOIBTtQj1Vmghl0UmhCKF$VS+DXu81fLZLwjMlkFAONBzGSEFj/SPGgW8Ok9SWigk=",
+    "last_login": "2026-11-03T02:15:27.710Z",
+    "is_superuser": true,
+    "username": "quidjango",
+    "first_name": "",
+    "last_name": "",
+    "email": "qtran19052004@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-27T03:17:23.705Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$l2iWyIPCyYdzqdB6PEe0HA$xUmmPaubRoVMgCjtyPndLrGIPIAhytW3aPvqSXX2I0Y=",
+    "last_login": "2026-11-03T03:10:15.577Z",
+    "is_superuser": true,
+    "username": "manager",
+    "first_name": "",
+    "last_name": "",
+    "email": "manager@ticketdesk.local",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-11-03T03:09:59.533Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$HOPZAr6CkzSZ2z3JSbU8HC$g2Ws0ED+fElUBdC8ONx9H5c+pptytsSJ9cU9ZSsRM58=",
+    "last_login": "2026-11-03T03:10:14.412Z",
+    "is_superuser": false,
+    "username": "itstaff",
+    "first_name": "",
+    "last_name": "",
+    "email": "staff@ticketdesk.local",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-11-03T03:10:00.018Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Yv9EbhErYdPB6dASIeY04F$+yL2eIRwqg4K9OF9+OxZRdVzkDmw8fTv74QSsbNIqWs=",
+    "last_login": "2026-11-03T03:10:13.419Z",
+    "is_superuser": false,
+    "username": "guest",
+    "first_name": "",
+    "last_name": "",
+    "email": "guest@company.local",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-03T03:10:00.516Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "catalog.userprofile",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "quidjango"
+    ],
+    "role": "manager"
+  }
+},
+{
+  "model": "catalog.userprofile",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "manager"
+    ],
+    "role": "manager"
+  }
+},
+{
+  "model": "catalog.userprofile",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "itstaff"
+    ],
+    "role": "staff"
+  }
+},
+{
+  "model": "catalog.userprofile",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "guest"
+    ],
+    "role": "guest"
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 3,
+  "fields": {
+    "name": "Phần cứng (Hardware)",
+    "description": "Sự cố liên quan đến máy tính, màn hình, bàn phím, RAM, ổ cứng và thiết bị ngoại vi",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 4,
+  "fields": {
+    "name": "Phần mềm (Software)",
+    "description": "Cài đặt, nâng cấp, lỗi hệ điều hành Windows, Office 365, phần mềm kế toán, ERP",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 5,
+  "fields": {
+    "name": "Mạng & Internet (Network)",
+    "description": "Sự cố mất kết nối mạng LAN, WiFi chập chờn, truy cập VPN từ xa",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 6,
+  "fields": {
+    "name": "Tài khoản & Phân quyền (Account & Access)",
+    "description": "Cấp mới, mở khóa tài khoản domain AD, reset mật khẩu email và cấp quyền thư mục",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 7,
+  "fields": {
+    "name": "Thiết bị văn phòng (Office Equipment)",
+    "description": "Sự cố máy in kẹt giấy, máy photocopy, máy scan, máy chấm công",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 1,
+  "fields": {
+    "category": 3,
+    "title": "Máy tính bàn kế toán không khởi động được, phát tiếng bíp",
+    "department": "Phòng Kế toán - Tầng 2",
+    "description": "Sáng nay mở máy tính kế toán viên thì case phát 3 tiếng bíp liên tục, màn hình không hiển thị.",
+    "sla_hours": 4,
+    "estimated_cost": "350000.00",
+    "priority": "HIGH",
+    "is_active": true,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.408Z",
+    "updated_at": "2026-11-03T02:03:10.408Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 2,
+  "fields": {
+    "category": 7,
+    "title": "Máy in mạng HP LaserJet không nhận lệnh in từ phòng Kinh doanh",
+    "department": "Phòng Kinh doanh - Tầng 3",
+    "description": "Tất cả nhân viên kinh doanh in tài liệu báo Printer Offline. Địa chỉ IP máy in 192.168.1.200 không ping được.",
+    "sla_hours": 2,
+    "estimated_cost": "0.00",
+    "priority": "MEDIUM",
+    "is_active": true,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.411Z",
+    "updated_at": "2026-11-03T02:03:10.411Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 3,
+  "fields": {
+    "category": 6,
+    "title": "Mở khóa tài khoản Domain Active Directory và đổi mật khẩu email",
+    "department": "Phòng Nhân sự - Tầng 1",
+    "description": "Nhân viên nhập sai mật khẩu quá 5 lần bị khóa tài khoản, cần mở khóa gấp.",
+    "sla_hours": 1,
+    "estimated_cost": "0.00",
+    "priority": "HIGH",
+    "is_active": true,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.414Z",
+    "updated_at": "2026-11-03T02:03:10.414Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 4,
+  "fields": {
+    "category": 5,
+    "title": "Mạng WiFi tầng 4 bị ngắt quãng, không truy cập được Internet",
+    "department": "Phòng Phát triển Phần mềm - Tầng 4",
+    "description": "Cả tầng 4 bị rớt mạng liên tục, Access Point nhấp nháy đèn cam, cần kiểm tra switch mạng.",
+    "sla_hours": 2,
+    "estimated_cost": "500000.00",
+    "priority": "URGENT",
+    "is_active": true,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.417Z",
+    "updated_at": "2026-11-03T02:03:10.417Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 5,
+  "fields": {
+    "category": 4,
+    "title": "Cài đặt phần mềm kế toán MISA và cấu hình chữ ký số Token",
+    "department": "Phòng Kế toán - Tầng 2",
+    "description": "Nhân sự mới nhận việc cần cài đặt bản quyền MISA SME 2026 và cài driver USB Token.",
+    "sla_hours": 3,
+    "estimated_cost": "0.00",
+    "priority": "MEDIUM",
+    "is_active": true,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.420Z",
+    "updated_at": "2026-11-03T02:03:10.420Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 6,
+  "fields": {
+    "category": 3,
+    "title": "Thay thế chuột quang và bàn phím máy trực tổng đài",
+    "department": "Phòng Chăm sóc Khách hàng - Tầng 1",
+    "description": "Bàn phím bị kẹt phím Enter, chuột rê không nhạy. Đã xuất kho thay mới.",
+    "sla_hours": 8,
+    "estimated_cost": "280000.00",
+    "priority": "LOW",
+    "is_active": false,
+    "created_by": null,
+    "created_at": "2026-11-03T02:03:10.423Z",
+    "updated_at": "2026-11-03T02:03:10.423Z"
+  }
+},
+{
+  "model": "catalog.ticket",
+  "pk": 7,
+  "fields": {
+    "category": 3,
+    "title": "Màn hình Dell Ultrasharp 27 inch bị sọc sọc sau khi khởi động",
+    "department": "Phòng Thiết kế Đồ họa - Tầng 3",
+    "description": "Đã kiểm tra, thay thế dây cáp DisplayPort chính hãng mới và test hoạt động ổn định. Đã bàn giao lại cho nhân viên.",
+    "sla_hours": 4,
+    "estimated_cost": "250000.00",
+    "priority": "HIGH",
+    "is_active": false,
+    "created_by": null,
+    "created_at": "2026-11-03T02:13:41.554Z",
+    "updated_at": "2026-11-03T02:13:41.567Z"
+  }
+}
+]

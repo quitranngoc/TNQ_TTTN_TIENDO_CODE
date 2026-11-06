@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketDesk | Dashboard</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fb;
+            font-family: Arial, sans-serif;
+            color: #263445;
+        }
+
+        .sidebar {
+            width: 245px;
+            min-height: 100vh;
+            background: #172b4d;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 25px 18px;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .brand i {
+            color: #4da3ff;
+            margin-right: 8px;
+        }
+
+        .sidebar .menu-title {
+            color: #91a4c2;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin: 25px 10px 12px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #c8d3e3;
+            text-decoration: none;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 7px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #28466f;
+            color: white;
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+        }
+
+        .main-content {
+            margin-left: 245px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .page-subtitle {
+            color: #8492a6;
+            font-size: 14px;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 13px;
+            padding: 22px;
+            background: white;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.04);
+            height: 100%;
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 21px;
+        }
+
+        .icon-blue {
+            background: #e8f1ff;
+            color: #2878e5;
+        }
+
+        .icon-green {
+            background: #e4f8ed;
+            color: #1eae64;
+        }
+
+        .icon-orange {
+            background: #fff1df;
+            color: #ed9827;
+        }
+
+        .icon-purple {
+            background: #f0eaff;
+            color: #8454df;
+        }
+
+        .stat-label {
+            color: #8492a6;
+            font-size: 14px;
+            margin-top: 18px;
+        }
+
+        .stat-number {
+            font-size: 27px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .content-card {
+            background: white;
+            border: none;
+            border-radius: 13px;
+            padding: 22px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.04);
+            height: 100%;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .section-description {
+            color: #8492a6;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        .table thead th {
+            background: #f8faff;
+            color: #718096;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 14px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 15px 14px;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-OPEN {
+            background: #fff1df;
+            color: #d88716;
+        }
+
+        .status-IN_PROGRESS {
+            background: #e8f1ff;
+            color: #2878e5;
+        }
+
+        .status-PENDING {
+            background: #f0eaff;
+            color: #8454df;
+        }
+
+        .status-RESOLVED {
+            background: #e4f8ed;
+            color: #1eae64;
+        }
+
+        .status-CLOSED {
+            background: #edf0f4;
+            color: #596579;
+        }
+
+        .filter-btn {
+            border: 1px solid #e0e6ef;
+            background: white;
+            color: #64748b;
+            padding: 8px 14px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .filter-btn.active {
+            background: #2878e5;
+            color: white;
+            border-color: #2878e5;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="brand">
+        <i class="bi bi-headset"></i> TicketDesk
+    </div>
+
+    <div class="menu-title">Menu chính</div>
+
+    <a href="#" class="active">
+        <i class="bi bi-grid"></i> Tổng quan
+    </a>
+
+    <a href="#ticket-section">
+        <i class="bi bi-ticket-perforated"></i> Quản lý Ticket
+    </a>
+
+    <a href="#statistics-section">
+        <i class="bi bi-bar-chart"></i> Thống kê
+    </a>
+
+    <div class="menu-title">Hệ thống</div>
+
+    <a href="/admin/">
+        <i class="bi bi-gear"></i> Quản trị hệ thống
+    </a>
+</div>
+
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <!-- HEADER -->
+    <div class="topbar">
+        <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-subtitle">
+                Tổng quan hoạt động hệ thống IT Service Desk
+            </div>
+        </div>
+
+        <div>
+            <button class="btn btn-primary btn-sm" onclick="initDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
+            </button>
+        </div>
+    </div>
+
+
+    <!-- STATISTICS CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">
+                    <i class="bi bi-ticket-detailed"></i>
+                </div>
+
+                <div class="stat-label">Tổng số Ticket</div>
+                <div class="stat-number" id="totalTickets">--</div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon icon-green">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+
+                <div class="stat-label">Ticket đã xử lý</div>
+                <div class="stat-number" id="processedTickets">--</div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon icon-orange">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+
+                <div class="stat-label">Ticket chưa xử lý</div>
+                <div class="stat-number" id="unprocessedTickets">--</div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon icon-purple">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <div class="stat-label">Chi phí trung bình</div>
+                <div class="stat-number" id="averageCost">--</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- CHARTS -->
+    <div class="row g-3 mb-4" id="statistics-section">
+
+        <div class="col-lg-6">
+            <div class="content-card">
+                <div class="section-title">
+                    Ticket theo trạng thái
+                </div>
+
+                <div class="section-description">
+                    Phân bố số lượng yêu cầu hỗ trợ theo trạng thái
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="content-card">
+                <div class="section-title">
+                    Ticket theo nhân viên phụ trách
+                </div>
+
+                <div class="section-description">
+                    Thống kê số lượng Ticket được phân công
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="assigneeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TICKET TABLE -->
+    <div class="content-card" id="ticket-section">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+
+            <div>
+                <div class="section-title">Danh sách Ticket</div>
+
+                <div class="section-description mb-0">
+                    Theo dõi các yêu cầu hỗ trợ trong hệ thống
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <button class="filter-btn active"
+                        onclick="filterTickets('all', this)">
+                    Tất cả
+                </button>
+
+                <button class="filter-btn"
+                        onclick="filterTickets('processed', this)">
+                    Đã xử lý
+                </button>
+
+                <button class="filter-btn"
+                        onclick="filterTickets('unprocessed', this)">
+                    Chưa xử lý
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tiêu đề</th>
+                        <th>Danh mục</th>
+                        <th>Phòng ban</th>
+                        <th>Độ ưu tiên</th>
+                        <th>Trạng thái</th>
+                        <th>Người phụ trách</th>
+                        <th>Chi phí</th>
+                    </tr>
+                </thead>
+
+                <tbody id="ticketTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            Đang tải dữ liệu...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="text-muted small mt-2" id="ticketCount">
+            Tổng số: 0 Ticket
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    const API = "/api/v1/dashboard";
+
+    let statusChart = null;
+    let assigneeChart = null;
+
+
+    // FORMAT TIEN
+    function formatCurrency(value) {
+        const number = Number(value || 0);
+
+        return number.toLocaleString("vi-VN") + " đ";
+    }
+
+
+    // CHUYEN DOI TEN TRANG THAI
+    function getStatusName(status) {
+        const names = {
+            OPEN: "Mở",
+            IN_PROGRESS: "Đang xử lý",
+            PENDING: "Chờ xử lý",
+            RESOLVED: "Đã giải quyết",
+            CLOSED: "Đã đóng"
+        };
+
+        return names[status] || status || "Không xác định";
+    }
+
+
+    // HIEN THI THONG BAO LOI TRONG BANG
+    function showTableMessage(message) {
+        document.getElementById("ticketTableBody").innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-danger py-4">
+                    ${escapeHTML(message)}
+                </td>
+            </tr>
+        `;
+    }
+
+
+    // ESCAPE HTML
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function(char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char];
+        });
+    }
+
+
+    // GOI API
+    async function fetchAPI(url) {
+        const response = await fetch(url, {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            throw new Error("API trả về HTTP " + response.status);
+        }
+
+        return await response.json();
+    }
+
+
+    // LOAD THONG KE
+    async function loadDashboard() {
+
+        try {
+
+            const result = await fetchAPI(`${API}/statistics/`);
+
+            if (!result.success) {
+                throw new Error("Không thể tải dữ liệu thống kê");
+            }
+
+            const data = result.statistics;
+
+            const overview = data.overview;
+            const statuses = data.by_status || [];
+            const assignees = data.by_assignee || [];
+
+            const total = Number(overview.total_tickets || 0);
+
+            const processed = statuses
+                .filter(item => ["RESOLVED", "CLOSED"].includes(item.status))
+                .reduce((sum, item) => sum + Number(item.total), 0);
+
+            const unprocessed = total - processed;
+
+            document.getElementById("totalTickets").textContent = total;
+
+            document.getElementById("processedTickets").textContent = processed;
+
+            document.getElementById("unprocessedTickets").textContent = unprocessed;
+
+            document.getElementById("averageCost").textContent =
+                formatCurrency(overview.average_cost);
+
+
+            // CHART TRANG THAI
+            const statusLabels = statuses.map(item =>
+                getStatusName(item.status)
+            );
+
+            const statusValues = statuses.map(item =>
+                Number(item.total)
+            );
+
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            statusChart = new Chart(
+                document.getElementById("statusChart"),
+                {
+                    type: "doughnut",
+
+                    data: {
+                        labels: statusLabels,
+
+                        datasets: [{
+                            data: statusValues,
+                            backgroundColor: [
+                                "#f5a623",
+                                "#2878e5",
+                                "#8454df",
+                                "#1eae64",
+                                "#64748b"
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                position: "bottom"
+                            }
+                        }
+                    }
+                }
+            );
+
+
+            // CHART NHAN VIEN
+            const assigneeLabels = assignees.map(item =>
+                item["assignee__username"] || "Chưa phân công"
+            );
+
+            const assigneeValues = assignees.map(item =>
+                Number(item.total)
+            );
+
+            if (assigneeChart) {
+                assigneeChart.destroy();
+            }
+
+            assigneeChart = new Chart(
+                document.getElementById("assigneeChart"),
+                {
+                    type: "bar",
+
+                    data: {
+                        labels: assigneeLabels,
+
+                        datasets: [{
+                            label: "Số Ticket",
+                            data: assigneeValues,
+                            backgroundColor: "#2878e5",
+                            borderRadius: 6
+                        }]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        },
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            );
+
+        } catch (error) {
+
+            console.error("Lỗi thống kê:", error);
+
+            document.getElementById("totalTickets").textContent = "Lỗi";
+            document.getElementById("processedTickets").textContent = "Lỗi";
+            document.getElementById("unprocessedTickets").textContent = "Lỗi";
+            document.getElementById("averageCost").textContent = "Lỗi";
+
+        }
+
+    }
+
+
+    // LOAD DANH SACH TICKET
+    async function loadTickets(filter = "all") {
+
+        try {
+
+            let url = `${API}/tickets/`;
+
+            if (filter === "processed") {
+                url += "?processed=true";
+            }
+
+            if (filter === "unprocessed") {
+                url += "?processed=false";
+            }
+
+            const result = await fetchAPI(url);
+
+            if (!result.success) {
+                throw new Error("Không thể tải danh sách Ticket");
+            }
+
+            const tickets = result.tickets || [];
+
+            const tbody = document.getElementById("ticketTableBody");
+
+            document.getElementById("ticketCount").textContent =
+                `Tổng số: ${result.count} Ticket`;
+
+            if (tickets.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            Không có Ticket nào.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            tbody.innerHTML = tickets.map(ticket => {
+
+                const status = ticket.status || "OPEN";
+
+                return `
+                    <tr>
+                        <td>#${ticket.id}</td>
+
+                        <td>
+                            <strong>${escapeHTML(ticket.title)}</strong>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(ticket.category_name || "Chưa phân loại")}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(ticket.department || "-")}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(ticket.priority || "-")}
+                        </td>
+
+                        <td>
+                            <span class="status-badge status-${escapeHTML(status)}">
+                                ${escapeHTML(getStatusName(status))}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(ticket.assignee_name || "Chưa phân công")}
+                        </td>
+
+                        <td>
+                            ${formatCurrency(ticket.estimated_cost)}
+                        </td>
+                    </tr>
+                `;
+
+            }).join("");
+
+        } catch (error) {
+
+            console.error("Lỗi danh sách Ticket:", error);
+
+            showTableMessage(error.message);
+
+        }
+
+    }
+
+
+    // LOC TICKET
+    function filterTickets(filter, button) {
+
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        loadTickets(filter);
+
+    }
+
+
+    // KHOI DONG DASHBOARD
+    async function initDashboard() {
+
+        await Promise.all([
+            loadDashboard(),
+            loadTickets("all")
+        ]);
+
+    }
+
+
+    // CHAY KHI TRANG DUOC TAI
+    document.addEventListener("DOMContentLoaded", initDashboard);
+
+</script>
+
+</body>
+</html>
