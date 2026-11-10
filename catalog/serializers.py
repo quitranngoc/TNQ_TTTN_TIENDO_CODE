@@ -1,8 +1,12 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .models import UserProfile
-from .models import Category, Ticket, UserProfile, get_user_role
+
+from .models import (
+    UserProfile,
+    Category,
+    Ticket,
+    get_user_role,
+)
 
 User = get_user_model()
 
@@ -97,6 +101,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class TicketSerializer(serializers.ModelSerializer):
     created_by_name = serializers.ReadOnlyField(source="created_by.username")
+    assignee_name = serializers.ReadOnlyField(source="assignee.username")
+
+    assignee = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(is_active=True),
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = Ticket
@@ -107,8 +118,11 @@ class TicketSerializer(serializers.ModelSerializer):
             "department",
             "description",
             "priority",
+            "status",
             "sla_hours",
             "estimated_cost",
+            "assignee",
+            "assignee_name",
             "is_active",
             "created_by",
             "created_by_name",
@@ -120,7 +134,43 @@ class TicketSerializer(serializers.ModelSerializer):
             "created_by",
             "created_at",
             "updated_at",
+            "assignee_name",
         ]
+
+    def validate(self, attrs):
+        # Chi nhan vien ho tro va quan ly moi duoc phan cong Ticket
+        if "assignee" in attrs:
+            request = self.context.get("request")
+
+            if not request or not request.user.is_authenticated:
+                raise serializers.ValidationError(
+                    {"assignee": "Ban phai dang nhap de phan cong Ticket."}
+                )
+
+            current_role = get_user_role(request.user)
+
+            if current_role not in [
+                UserProfile.ROLE_STAFF,
+                UserProfile.ROLE_MANAGER,
+            ]:
+                raise serializers.ValidationError(
+                    {"assignee": "Ban khong co quyen phan cong Ticket."}
+                )
+
+            assignee = attrs["assignee"]
+
+            if assignee is not None:
+                assignee_role = get_user_role(assignee)
+
+                if assignee_role not in [
+                    UserProfile.ROLE_STAFF,
+                    UserProfile.ROLE_MANAGER,
+                ]:
+                    raise serializers.ValidationError(
+                        {"assignee": "Nguoi duoc phan cong phai la nhan vien ho tro hoac quan ly."}
+                    )
+
+        return attrs
 
     def validate_estimated_cost(self, value):
         if value < 0:

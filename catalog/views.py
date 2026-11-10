@@ -198,18 +198,16 @@ class DashboardStatisticsView(views.APIView):
 
 
 class DashboardTicketListView(views.APIView):
-    """
-    API danh sach Ticket da xu ly va chua xu ly
-    """
     permission_classes = [TicketPermission]
 
     def get(self, request):
         processed_param = request.query_params.get("processed")
         ticket_status = request.query_params.get("status")
+        assignee_param = request.query_params.get("assignee")
 
-        # Chuyen processed tu chuoi sang Boolean
         processed = None
 
+        # Kiem tra tham so processed
         if processed_param is not None:
             if processed_param.lower() == "true":
                 processed = True
@@ -224,9 +222,29 @@ class DashboardTicketListView(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        # Kiem tra tham so assignee
+        assignee = None
+
+        if assignee_param == "unassigned":
+            assignee = "unassigned"
+
+        elif assignee_param:
+            if not assignee_param.isdigit():
+                return Response(
+                    {
+                        "success": False,
+                        "message": "assignee phai la ID nhan vien hop le."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            assignee = int(assignee_param)
+
+        # Lay danh sach Ticket
         tickets = get_ticket_list(
             processed=processed,
             status=ticket_status,
+            assignee=assignee,
         )
 
         serializer = TicketListSerializer(tickets, many=True)

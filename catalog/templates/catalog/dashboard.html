@@ -408,7 +408,15 @@
             </div>
 
             <div class="d-flex gap-2 flex-wrap">
+                <select id="assigneeFilter"
+                        class="form-select form-select-sm"
+                        style="width: 200px;"
+                        onchange="filterByAssignee()">
 
+                    <option value="">Tất cả người phụ trách</option>
+                    <option value="unassigned">Chưa phân công</option>
+
+                </select>
                 <button class="filter-btn active"
                         onclick="filterTickets('all', this)">
                     Tất cả
@@ -469,9 +477,13 @@
 
 <script>
     const API = "/api/v1/dashboard";
+const EMPLOYEE_API = "/api/v1/employees/";
 
-    let statusChart = null;
-    let assigneeChart = null;
+let statusChart = null;
+let assigneeChart = null;
+
+let employees = [];
+let currentTicketFilter = "all";
 
 
     // FORMAT TIEN
@@ -536,6 +548,105 @@
         return await response.json();
     }
 
+    // LOAD DANH SACH NHAN VIEN
+async function loadEmployees() {
+    try {
+        const result = await fetchAPI(EMPLOYEE_API);
+
+        if (!result.success) {
+            throw new Error("Khong the tai danh sach nhan vien");
+        }
+
+        employees = result.employees || [];
+
+        const select = document.getElementById("assigneeFilter");
+
+        select.innerHTML = `
+            <option value="">Tất cả người phụ trách</option>
+            <option value="unassigned">Chưa phân công</option>
+        `;
+
+        employees.forEach(employee => {
+            const option = document.createElement("option");
+            option.value = employee.id;
+
+            const fullName =
+                `${employee.first_name || ""} ${employee.last_name || ""}`.trim();
+
+            option.textContent = fullName
+                ? `${fullName} (${employee.username})`
+                : employee.username;
+
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Loi tai nhan vien:", error);
+    }
+}
+
+// LAY CSRF TOKEN
+function getCookie(name) {
+    const cookies = document.cookie.split(";");
+
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+
+        if (cookie.startsWith(name + "=")) {
+            return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    }
+
+    return null;
+}
+
+
+// PHAN CONG NGUOI XU LY
+async function assignTicket(ticketId, assigneeId) {
+
+    const select = document.getElementById(`assignee-${ticketId}`);
+    const previousValue = select.dataset.previousValue;
+
+    select.disabled = true;
+
+    try {
+        const response = await fetch(`/api/v1/tickets/${ticketId}/`, {
+            method: "PATCH",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({
+                assignee: assigneeId === "" ? null : Number(assigneeId)
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.detail ||
+                result.assignee?.[0] ||
+                "Khong the phan cong Ticket"
+            );
+        }
+
+        alert("Phan cong Ticket thanh cong!");
+
+        await loadDashboard();
+        await loadTickets(currentTicketFilter);
+
+    } catch (error) {
+
+        alert("Loi phan cong: " + error.message);
+
+        select.value = previousValue;
+
+    } finally {
+        select.disabled = false;
+    }
+}
 
     // LOAD THONG KE
     async function loadDashboard() {
@@ -685,124 +796,156 @@
     }
 
 
-    // LOAD DANH SACH TICKET
-    async function loadTickets(filter = "all") {
+// LOAD DANH SACH TICKET
+async function loadTickets(filter = "all") {
 
-        try {
+    try {
 
-            let url = `${API}/tickets/`;
+        const params = new URLSearchParams();
 
-            if (filter === "processed") {
-                url += "?processed=true";
-            }
-
-            if (filter === "unprocessed") {
-                url += "?processed=false";
-            }
-
-            const result = await fetchAPI(url);
-
-            if (!result.success) {
-                throw new Error("Không thể tải danh sách Ticket");
-            }
-
-            const tickets = result.tickets || [];
-
-            const tbody = document.getElementById("ticketTableBody");
-
-            document.getElementById("ticketCount").textContent =
-                `Tổng số: ${result.count} Ticket`;
-
-            if (tickets.length === 0) {
-
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center text-muted py-4">
-                            Không có Ticket nào.
-                        </td>
-                    </tr>
-                `;
-
-                return;
-            }
-
-
-            tbody.innerHTML = tickets.map(ticket => {
-
-                const status = ticket.status || "OPEN";
-
-                return `
-                    <tr>
-                        <td>#${ticket.id}</td>
-
-                        <td>
-                            <strong>${escapeHTML(ticket.title)}</strong>
-                        </td>
-
-                        <td>
-                            ${escapeHTML(ticket.category_name || "Chưa phân loại")}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(ticket.department || "-")}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(ticket.priority || "-")}
-                        </td>
-
-                        <td>
-                            <span class="status-badge status-${escapeHTML(status)}">
-                                ${escapeHTML(getStatusName(status))}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHTML(ticket.assignee_name || "Chưa phân công")}
-                        </td>
-
-                        <td>
-                            ${formatCurrency(ticket.estimated_cost)}
-                        </td>
-                    </tr>
-                `;
-
-            }).join("");
-
-        } catch (error) {
-
-            console.error("Lỗi danh sách Ticket:", error);
-
-            showTableMessage(error.message);
-
+        if (filter === "processed") {
+            params.set("processed", "true");
         }
 
-    }
+        if (filter === "unprocessed") {
+            params.set("processed", "false");
+        }
 
+        const assignee = document.getElementById("assigneeFilter").value;
+
+        if (assignee) {
+            params.set("assignee", assignee);
+        }
+
+        const query = params.toString();
+
+        const url = `${API}/tickets/${query ? "?" + query : ""}`;
+
+        const result = await fetchAPI(url);
+
+        if (!result.success) {
+            throw new Error("Khong the tai danh sach Ticket");
+        }
+
+        const tickets = result.tickets || [];
+        const tbody = document.getElementById("ticketTableBody");
+
+        document.getElementById("ticketCount").textContent =
+            `Tổng số: ${result.count} Ticket`;
+
+        if (tickets.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        Không có Ticket nào.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = tickets.map(ticket => {
+
+            const status = ticket.status || "OPEN";
+
+            return `
+                <tr>
+                    <td>#${ticket.id}</td>
+
+                    <td>
+                        <strong>${escapeHTML(ticket.title)}</strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(ticket.category_name || "Chưa phân loại")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(ticket.department || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(ticket.priority || "-")}
+                    </td>
+
+                    <td>
+                        <span class="status-badge status-${escapeHTML(status)}">
+                            ${escapeHTML(getStatusName(status))}
+                        </span>
+                    </td>
+
+                    <td>
+                        <select
+                            class="form-select form-select-sm"
+                            style="min-width:170px;"
+                            id="assignee-${ticket.id}"
+                            data-previous-value="${ticket.assignee ?? ''}"
+                            onchange="assignTicket(${ticket.id}, this.value)"
+                        >
+                            <option value="">Chưa phân công</option>
+
+                            ${employees.map(employee => `
+                                <option
+                                    value="${employee.id}"
+                                    ${Number(ticket.assignee) === Number(employee.id) ? "selected" : ""}
+                                >
+                                    ${escapeHTML(
+                                        employee.first_name || employee.last_name
+                                            ? `${employee.first_name} ${employee.last_name} (${employee.username})`
+                                            : employee.username
+                                    )}
+                                </option>
+                            `).join("")}
+                        </select>
+                    </td>
+
+                    <td>
+                        ${formatCurrency(ticket.estimated_cost)}
+                    </td>
+                </tr>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error("Loi danh sach Ticket:", error);
+        showTableMessage(error.message);
+
+    }
+}
+
+// LOC THEO NGUOI PHU TRACH
+function filterByAssignee() {
+    loadTickets(currentTicketFilter);
+}
 
     // LOC TICKET
-    function filterTickets(filter, button) {
+function filterTickets(filter, button) {
 
-        document.querySelectorAll(".filter-btn").forEach(btn => {
-            btn.classList.remove("active");
-        });
+    currentTicketFilter = filter;
 
-        button.classList.add("active");
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
 
-        loadTickets(filter);
+    button.classList.add("active");
 
-    }
+    loadTickets(filter);
+}
 
 
     // KHOI DONG DASHBOARD
-    async function initDashboard() {
+async function initDashboard() {
 
-        await Promise.all([
-            loadDashboard(),
-            loadTickets("all")
-        ]);
+    await loadEmployees();
 
-    }
+    await Promise.all([
+        loadDashboard(),
+        loadTickets("all")
+    ]);
+
+}
 
 
     // CHAY KHI TRANG DUOC TAI

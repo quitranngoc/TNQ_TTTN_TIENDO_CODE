@@ -65,27 +65,25 @@ def get_ticket_statistics():
         "by_status": list(status_statistics),
         "by_assignee": list(assignee_statistics)
     }
-def get_ticket_list(processed=None, status=None):
-
+def get_ticket_list(processed=None, status=None, assignee=None):
     tickets = Ticket.objects.select_related(
-        "category",
-        "assignee",
-        "created_by"
+        "category", "assignee", "created_by"
     ).order_by("-created_at")
 
     # Loc theo trang thai xu ly
     if processed is True:
-        tickets = tickets.filter(
-            status__in=["RESOLVED", "CLOSED"]
-        )
-
+        tickets = tickets.filter(status__in=["RESOLVED", "CLOSED"])
     elif processed is False:
-        tickets = tickets.exclude(
-            status__in=["RESOLVED", "CLOSED"]
-        )
+        tickets = tickets.exclude(status__in=["RESOLVED", "CLOSED"])
 
-    # Loc theo trang thai cu the
+    # Loc theo trang thai Ticket
     if status:
         tickets = tickets.filter(status=status)
+
+    # Loc theo nguoi phu trach
+    if assignee == "unassigned":
+        tickets = tickets.filter(assignee__isnull=True)
+    elif assignee:
+        tickets = tickets.filter(assignee_id=assignee)
 
     return tickets
